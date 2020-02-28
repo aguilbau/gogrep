@@ -1,0 +1,23 @@
+#!/bin/sh
+
+[ -z "$1" ] && exit 0
+
+grep -n --include '*.go' --exclude-dir .go-build-cache -R "$@" | python3 -c '
+import fileinput
+
+results = {}
+for line in fileinput.input():
+	s = line.split(":", 1)
+	file=s[0]
+	line=s[1]
+	if file in results:
+		results[file] += line
+	else:
+		results[file] = line
+for idx, file in enumerate(results):
+	print("\033[32m" + file + "\033[0m")
+	if idx == len(results) - 1:
+		print(results[file][:-1])
+	else:
+		print(results[file])
+'
